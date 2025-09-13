@@ -1,0 +1,88 @@
+{
+  "mainSettings": {
+    "businessName": "Nextall",
+    "domainName": "www.nextall.com",
+    "websiteStatus": true,
+    "offlineMessage": "We are currently undergoing maintenance. Please check back soon.",
+    "seo": {
+      "metaTitle": "Nextall - React Multivendor Ecommerce Script with Next js & MongoDB",
+      "metaDescription": "Nextall is your all-in-one ecommerce solution with top products, fast delivery, and best prices.",
+      "description": "Welcome to Nextall, a modern ecommerce platform offering a wide range of products from electronics to fashion, ensuring quality, convenience, and speed.",
+      "tags": ["nextall", "ecommerce", "shopping", "online store", "best deals"]
+    },
+    "theme": {
+      "palette": {
+        "primary": "#1C6BD2",
+        "secondary": "#2288EB",
+        "paperLight": "#FFFFFF",
+        "paperDark": "#212B36",
+        "defaultDark": "#161C24",
+        "defaultLight": "#F9FAFB"
+      },
+      "themeName": "default",
+      "fontFamily": "roboto"
+    }
+  },
+  "systemSettings": {
+    "gaId": "UA-NEXTALL-1",
+    "gtmId": "GTM-NEXTALL"
+  },
+  "slides": [
+    {
+      "image": {
+        "_id": "slide1",
+        "url": "https://nextall-fe-staging.vercel.app/images/slide-1.png"
+      },
+      "link": "/products"
+    },
+    {
+      "image": {
+        "_id": "slide2",
+        "url": "https://nextall-fe-staging.vercel.app/images/slide-2.png"
+      },
+      "link": "/products"
+    }
+  ],
+  "banner1": {
+    "image": {
+      "_id": "banner1",
+      "url": "https://nextall-fe-staging.vercel.app/images/banner-1.png"
+    },
+    "link": "/products?category=shoes"
+  },
+  "banner2": {
+    "image": {
+      "_id": "banner2",
+      "url": "https://nextall-fe-staging.vercel.app/images/banner-2.png"
+    },
+    "link": "/products?category=watches"
+  },
+  "contact": {
+    "address": "Nextall HQ, 123 Innovation Street, Tech City",
+    "addressOnMap": "https://maps.google.com/?q=Nextall+HQ",
+    "lat": "37.7749",
+    "long": "-122.4194",
+    "email": "support@nextall.com",
+    "phone": "+1234567890",
+    "whatsappNo": "+1234567890"
+  },
+  "socialLinks": {
+    "facebook": "https://facebook.com/nextall",
+    "twitter": "https://twitter.com/nextall",
+    "linkedin": "https://linkedin.com/company/nextall",
+    "instagram": "https://instagram.com/nextall",
+    "whatsapp": "https://wa.me/1234567890"
+  },
+  "logoDark": {
+    "_id": "logo-dark",
+    "url": "https://nextall-fe-staging.vercel.app/logo-dark.svg"
+  },
+  "logoLight": {
+    "_id": "logo-light",
+    "url": "https://nextall-fe-staging.vercel.app/logo-light.svg"
+  },
+  "favicon": {
+    "_id": "favicon",
+    "url": "https://nextall-fe-staging.vercel.app/favicon.ico"
+  }
+}
