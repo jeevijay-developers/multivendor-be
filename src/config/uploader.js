@@ -2,7 +2,7 @@
 const cloudinary = require("./cloudinary");
 
 const uploadOnCloudinary = (file) => {
-  return cloudinary.uploader.unsigned_upload(file, "my-uploads");
+  return cloudinary.uploader.unsigned_upload(file, "nekimart");
 };
 
 const deleteFromCloudinary = (file) => {
