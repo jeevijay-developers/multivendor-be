@@ -23,52 +23,30 @@ const signUp = async (req, res) => {
       });
     }
 
-    const otp = otpGenerator.generate(6, {
-      upperCaseAlphabets: false,
-      specialChars: false,
-      lowerCaseAlphabets: false,
-      digits: true,
-    });
+    // You can still generate an OTP if you want to store it, but it's not required
+    // const otp = otpGenerator.generate(6, {
+    //   upperCaseAlphabets: false,
+    //   specialChars: false,
+    //   lowerCaseAlphabets: false,
+    //   digits: true,
+    // });
 
     const user = await User.create({
       ...request,
-      otp,
+      // otp, // Not needed if not sending OTP
       role: Boolean(UserCount) ? request.role || "user" : "super-admin",
+      isVerified: true, // Mark as verified since no email verification
     });
 
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
-    const htmlFilePath = path.join(
-      process.cwd(),
-      "src/email-templates",
-      "otp.html"
-    );
-    let htmlContent = fs.readFileSync(htmlFilePath, "utf8");
-    htmlContent = htmlContent.replace(/<h1>[\s\d]*<\/h1>/g, `<h1>${otp}</h1>`);
-    htmlContent = htmlContent.replace(/usingyourmail@gmail\.com/g, user.email);
+    // --- Removed all nodemailer/email logic ---
 
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.RECEIVING_EMAIL,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-
-    let mailOptions = {
-      from: process.env.RECEIVING_EMAIL,
-      to: user.email,
-      subject: "Verify your email",
-      html: htmlContent,
-    };
-
-    await transporter.sendMail(mailOptions);
     res.status(201).json({
       success: true,
       message: "Created User Successfully",
-      otp,
       token,
       user,
     });
