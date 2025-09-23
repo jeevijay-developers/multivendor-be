@@ -72,30 +72,6 @@ const getShopStatsByVendor = async (req, res) => {
     return res.status(400).json({ success: false, message: error.message });
   }
 };
-/*    🏪 Create Shop by Vendor    */
-const createShopByVendor = async (req, res) => {
-  try {
-    const vendor = await getVendor(req, res);
-    const { logo, ...others } = req.body;
-    console.log(req.body);
-    const shop = await Shop.create({
-      vendor: vendor._id.toString(),
-      ...others,
-      logo: {
-        ...logo,
-      },
-      status: "pending",
-    });
-
-    return res.status(201).json({
-      success: true,
-      data: shop,
-      message: "Shop created",
-    });
-  } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
-  }
-};
 
 /*    🔍 Get One Shop by Vendor    */
 const getOneShopByVendor = async (req, res) => {
@@ -121,7 +97,8 @@ const updateOneShopByVendor = async (req, res) => {
   try {
     const { slug } = req.params;
     const vendor = await getVendor(req, res);
-    const { logo, financialDetails, ...others } = req.body;
+    const { logo, financialDetails, ownerDetails, letterOfAuthority, ...others } = req.body;
+    
     // 🔒 Financial details must be present
     if (!financialDetails || !financialDetails.paymentMethod) {
       return res.status(400).json({
@@ -157,20 +134,35 @@ const updateOneShopByVendor = async (req, res) => {
         });
       }
     }
+
+    const updateData = {
+      ...others,
+      financialDetails: {
+        ...financialDetails,
+      },
+    };
+
+    if (logo && (logo._id || logo.url)) {
+      updateData.logo = { ...logo };
+    }
+
+    if (letterOfAuthority && (letterOfAuthority._id || letterOfAuthority.url)) {
+      updateData.letterOfAuthority = { ...letterOfAuthority };
+    }
+
+    // Add owner details if provided
+    if (ownerDetails) {
+      updateData.ownerDetails = {
+        ...ownerDetails
+      };
+    }
+
     const updateShop = await Shop.findOneAndUpdate(
       {
         slug: slug,
         vendor: vendor._id.toString(),
       },
-      {
-        ...others,
-        logo: {
-          ...logo,
-        },
-        financialDetails: {
-          ...financialDetails,
-        },
-      },
+      updateData,
       {
         new: true,
         runValidators: true,
@@ -210,7 +202,6 @@ const deleteOneShopByVendor = async (req, res) => {
 
 module.exports = {
   getShopStatsByVendor,
-  createShopByVendor,
   getOneShopByVendor,
   updateOneShopByVendor,
   deleteOneShopByVendor,

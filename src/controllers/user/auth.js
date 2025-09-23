@@ -23,32 +23,59 @@ const signUp = async (req, res) => {
       });
     }
 
-    // You can still generate an OTP if you want to store it, but it's not required
-    // const otp = otpGenerator.generate(6, {
-    //   upperCaseAlphabets: false,
-    //   specialChars: false,
-    //   lowerCaseAlphabets: false,
-    //   digits: true,
-    // });
+    // Generate OTP for email verification
+    const otp = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      specialChars: false,
+      lowerCaseAlphabets: false,
+      digits: true,
+    });
 
     const user = await User.create({
       ...request,
-      // otp, // Not needed if not sending OTP
+      otp,
       role: Boolean(UserCount) ? request.role || "user" : "super-admin",
-      isVerified: true, // Mark as verified since no email verification
+      isVerified: false, // Mark as not verified until OTP is verified
     });
 
+    // Send OTP via email
+    const htmlFilePath = path.join(
+      process.cwd(),
+      "src/email-templates",
+      "otp.html"
+    );
+    let htmlContent = fs.readFileSync(htmlFilePath, "utf8");
+    htmlContent = htmlContent.replace(/<h1>[\s\d]*<\/h1>/g, `<h1>${otp}</h1>`);
+    htmlContent = htmlContent.replace(/usingyourmail@gmail\.com/g, user.email);
+
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.RECEIVING_EMAIL,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    let mailOptions = {
+      from: process.env.RECEIVING_EMAIL,
+      to: user.email,
+      subject: "Verify your email - OTP",
+      html: htmlContent,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    // Generate token for OTP verification (user won't be fully authenticated until OTP is verified)
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
+      expiresIn: "1h", // Shorter expiry for unverified users
     });
-
-    // --- Removed all nodemailer/email logic ---
 
     res.status(201).json({
       success: true,
-      message: "Created User Successfully",
+      message: "User created successfully. Please check your email for OTP verification.",
       token,
-      user,
+      userId: user._id,
+      requiresVerification: true,
     });
   } catch (error) {
     res.status(400).json({

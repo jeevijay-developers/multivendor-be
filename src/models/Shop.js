@@ -29,11 +29,11 @@ const ShopSchema = new mongoose.Schema(
     logo: {
       _id: {
         type: String,
-        required: [true, "Image id is required."],
+        // optional to allow creating shop without a logo
       },
       url: {
         type: String,
-        required: [true, "Image url is required."],
+        // optional to allow creating shop without a logo
       },
     },
 
@@ -47,28 +47,48 @@ const ShopSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    metaTitle: {
-      type: String,
-      required: [true, "Meta title is required."],
-      maxlength: [100, "Meta title cannot exceed 100 characters."],
-      index: true,
-    },
     description: {
       type: String,
       required: [true, "Description is required."],
       maxlength: [500, "Description cannot exceed 500 characters."],
     },
-    metaDescription: {
-      type: String,
-      required: [true, "Meta description is required."],
-      maxlength: [200, "Meta description cannot exceed 200 characters."],
+  // registrationNumber removed as per new requirements
+    stateOfSupplier: { 
+      type: String, 
+      required: true,
+      enum: [
+        'Individual', 
+        'Partnership Firm', 
+        'Private Limited Company (Pvt Ltd)', 
+        'Limited Liability Partnership (LLP)'
+      ]
     },
-    registrationNumber: { type: String, required: true, unique: true },
+    incomeTaxPAN: {
+      type: String,
+      required: [true, "Income Tax PAN is required"],
+      match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Income Tax PAN must be in format ABCDE1234F"]
+    },
+    // Letter of Authority - required only when stateOfSupplier is Partnership Firm
+    letterOfAuthority: {
+      _id: {
+        type: String,
+        required: function () {
+          return this.stateOfSupplier === 'Partnership Firm';
+        },
+      },
+      url: {
+        type: String,
+        required: function () {
+          return this.stateOfSupplier === 'Partnership Firm';
+        },
+      },
+    },
     address: {
-      country: { type: String, required: true },
-      city: { type: String, required: true },
-      state: { type: String, required: true },
       streetAddress: { type: String, required: true },
+      city: { type: String, required: true },
+      zipcode: { type: String, required: true },
+      state: { type: String, required: true },
+      country: { type: String, required: true },
     },
     contactPerson: { type: String },
     shopEmail: { type: String, required: true },
@@ -123,30 +143,78 @@ const ShopSchema = new mongoose.Schema(
         swiftCode: { type: String },
       },
     },
-    identityVerification: {
-      governmentId: {
+    
+    // Owner Details (User's data)
+    ownerDetails: {
+      aadharCardNumber: {
+        type: String,
+        required: [true, "Aadhar card number is required"],
+        match: [/^[0-9]{12}$/, "Aadhar card number must be exactly 12 digits"]
+      },
+      panNumber: {
+        type: String,
+        required: [true, "PAN number is required"],
+        match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "PAN number must be in format ABCDE1234F"]
+      },
+      ifscCode: {
+        type: String,
+        required: [true, "IFSC code is required"],
+        match: [/^[A-Z]{4}0[A-Z0-9]{6}$/, "IFSC code must be in valid format"]
+      },
+      gstNumber: {
+        type: String,
+        required: [true, "GST number is required"],
+        match: [/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "GST number must be in valid format"]
+      },
+      bankBranch: {
+        type: String,
+        required: [true, "Bank branch is required"]
+      },
+      accountNumber: {
+        type: String,
+        required: [true, "Account number is required"],
+        match: [/^[0-9]{9,18}$/, "Account number must be between 9-18 digits"]
+      },
+      accountHolderName: {
+        type: String,
+        required: [true, "Account holder name is required"]
+      },
+      aadharCardPhotos: [{
         _id: {
           type: String,
-          required: [true, "Image id is required."],
+          required: [true, "Aadhar card image id is required"]
         },
         url: {
           type: String,
-          required: [true, "Image url is required."],
+          required: [true, "Aadhar card image url is required"]
         },
-      },
-      proofOfAddress: {
+        side: {
+          type: String,
+          enum: ['front', 'back'],
+          required: [true, "Aadhar card side (front/back) is required"]
+        }
+      }],
+      panCardPhoto: {
         _id: {
           type: String,
-          required: [true, "Image id is required."],
+          required: [true, "PAN card image id is required"]
         },
         url: {
           type: String,
-          required: [true, "Image url is required."],
-        },
+          required: [true, "PAN card image url is required"]
+        }
       },
+      cancelCheque: {
+        _id: {
+          type: String,
+          required: [true, "Cancel cheque image id is required"]
+        },
+        url: {
+          type: String,
+          required: [true, "Cancel cheque image url is required"]
+        }
+      }
     },
-    taxIdentificationNumber: { type: String, required: true },
-    vatRegistrationNumber: { type: String },
     // operationalDetails: {
     //   returnPolicy: { type: String },
     //   handlingTime: { type: Number },
