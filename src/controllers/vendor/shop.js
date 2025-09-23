@@ -75,105 +75,25 @@ const getShopStatsByVendor = async (req, res) => {
 /*    🏪 Create Shop by Vendor    */
 const createShopByVendor = async (req, res) => {
   try {
-    // Get user (could be "user" role initially, will be upgraded to "vendor")
-    const user = await getUser(req, res);
-    
-    // Check if user already has a shop
-    const existingShop = await Shop.findOne({ vendor: user._id });
-    if (existingShop) {
-      return res.status(400).json({
-        success: false,
-        message: "You already have a shop registered"
-      });
-    }
-
-    const { 
-      logo, 
-      identityVerification,
-      ownerDetails,
-      financialDetails,
-      ...others 
-    } = req.body;
-    
-    // Validate required fields
-    if (!logo) {
-      return res.status(400).json({
-        success: false,
-        message: "Logo is required"
-      });
-    }
-
-    if (!identityVerification?.governmentId || !identityVerification?.proofOfAddress) {
-      return res.status(400).json({
-        success: false,
-        message: "Identity verification documents are required"
-      });
-    }
-
-    if (!ownerDetails) {
-      return res.status(400).json({
-        success: false,
-        message: "Owner details are required"
-      });
-    }
-
+    const vendor = await getVendor(req, res);
+    const { logo, ...others } = req.body;
+    console.log(req.body);
     const shop = await Shop.create({
-      vendor: user._id.toString(),
+      vendor: vendor._id.toString(),
       ...others,
       logo: {
         ...logo,
       },
-      identityVerification: {
-        governmentId: {
-          ...identityVerification.governmentId,
-        },
-        proofOfAddress: {
-          ...identityVerification.proofOfAddress,
-        }
-      },
-      ownerDetails: {
-        ...ownerDetails,
-        aadharCard: {
-          ...ownerDetails.aadharCard,
-        },
-        panCard: {
-          ...ownerDetails.panCard,
-        },
-        cancelCheque: {
-          ...ownerDetails.cancelCheque,
-        }
-      },
-      ...(financialDetails && {
-        financialDetails: {
-          ...financialDetails,
-        }
-      }),
       status: "pending",
     });
-
-    // Update user role from "user" to "vendor" and link the shop
-    await User.findByIdAndUpdate(
-      user._id,
-      {
-        role: "vendor",
-        shop: shop._id,
-        commission: 0 // Default commission, can be updated later by admin
-      },
-      { new: true }
-    );
 
     return res.status(201).json({
       success: true,
       data: shop,
-      message: "Shop created successfully and is under review. Your account has been upgraded to vendor status.",
+      message: "Shop created",
     });
   } catch (error) {
-    console.error('Shop creation error:', error);
-    return res.status(400).json({ 
-      success: false, 
-      message: error.message,
-      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
-    });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
